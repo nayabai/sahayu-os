@@ -1,0 +1,10 @@
+{
+  "name": "Sahayu",
+  "description": "Find Trusted Help Nearby - Local skilled-worker marketplace for Pune connecting customers with trusted plumbers, electricians, carpenters, cleaners, and repair technicians.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
