@@ -426,3 +426,67 @@ export async function sendChatMessage(data: any) {
   });
 }
 
+export async function fetchPublicConfig(): Promise<{
+  locality: string;
+  isDatabaseConnected: boolean;
+  hasDatabaseUrl: boolean;
+  hasRazorpay: boolean;
+  razorpayKeyId: string;
+  hasGoogleMaps: boolean;
+  googleMapsApiKey: string;
+  hasGemini: boolean;
+}> {
+  try {
+    const res = await fetch(`${BASE_URL}/config/public`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn('Config fetch error, using defaults', e);
+  }
+  return {
+    locality: 'Pune, Maharashtra',
+    isDatabaseConnected: false,
+    hasDatabaseUrl: false,
+    hasRazorpay: false,
+    razorpayKeyId: '',
+    hasGoogleMaps: false,
+    googleMapsApiKey: '',
+    hasGemini: false
+  };
+}
+
+export async function createRazorpayOrder(jobId: string, amount: number) {
+  const res = await fetch(`${BASE_URL}/payment/razorpay/create-order`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ jobId, amount })
+  });
+  if (!res.ok) throw new Error('Failed to create Razorpay order');
+  return await res.json();
+}
+
+export async function verifyRazorpayPayment(data: {
+  jobId: string;
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature?: string;
+  isSimulation?: boolean;
+}) {
+  const res = await fetch(`${BASE_URL}/payment/razorpay/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Payment verification failed');
+  return await res.json();
+}
+
+export async function geocodeAddress(address: string) {
+  try {
+    const res = await fetch(`${BASE_URL}/maps/geocode?address=${encodeURIComponent(address)}`);
+    if (res.ok) return await res.json();
+  } catch (e) {
+    console.warn('Geocoding fetch error', e);
+  }
+  return null;
+}
+

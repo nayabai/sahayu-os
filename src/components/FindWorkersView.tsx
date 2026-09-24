@@ -14,9 +14,12 @@ import {
   Wrench,
   Clock,
   Award,
-  AlertCircle
+  AlertCircle,
+  Map as MapIcon,
+  LayoutGrid
 } from 'lucide-react';
 import { WorkerProfile } from '../types';
+import { PuneMapView } from './PuneMapView';
 
 export const FindWorkersView: React.FC = () => {
   const {
@@ -34,6 +37,7 @@ export const FindWorkersView: React.FC = () => {
     t
   } = useApp();
 
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('all');
   const [onlyVerified, setOnlyVerified] = useState(false);
@@ -259,14 +263,49 @@ export const FindWorkersView: React.FC = () => {
         </div>
       </div>
 
-      {/* Results Header */}
-      <div className="flex items-center justify-between text-xs text-slate-500 px-1">
-        <span>Found <strong className="text-slate-900">{filteredWorkers.length}</strong> skilled workers</span>
-        <span className="text-slate-400">Ranked by proximity, rating & completed jobs</span>
+      {/* Results Header with View Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 px-1">
+        <div className="flex items-center gap-2">
+          <span>Found <strong className="text-slate-900">{filteredWorkers.length}</strong> skilled workers</span>
+          <span className="hidden sm:inline text-slate-400">• Ranked by proximity & rating</span>
+        </div>
+
+        {/* View Mode Toggle Buttons */}
+        <div className="flex items-center bg-slate-200/70 p-0.5 rounded-xl border border-slate-300/60 shadow-2xs">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === 'grid'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5 text-blue-600" />
+            <span>List View</span>
+          </button>
+          <button
+            onClick={() => setViewMode('map')}
+            className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === 'map'
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Pune Map</span>
+          </button>
+        </div>
       </div>
 
-      {/* Workers Grid */}
-      {filteredWorkers.length === 0 ? (
+      {/* Map View Mode */}
+      {viewMode === 'map' ? (
+        <PuneMapView
+          workers={filteredWorkers}
+          currentLocality={currentLocality}
+          onSelectWorker={setSelectedWorkerForProfile}
+          onChatWorker={(worker) => openChatWith({ id: worker.userId, name: worker.name, role: 'worker' })}
+        />
+      ) : filteredWorkers.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 space-y-4">
           <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
             <AlertCircle className="w-8 h-8" />
